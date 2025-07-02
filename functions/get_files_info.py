@@ -9,23 +9,22 @@ def get_files_info(working_directory, directory=None):
     # - package.json: file_size=1234 bytes, is_dir=False
 
     
-    print("Started trying")
+    # print("Started trying")
     abs_working_dir = os.path.abspath(working_directory)
     target_dir = abs_working_dir
 
+    # If there is a directory specified. That is, if directory is not None.
     if directory:
         target_dir = os.path.abspath(os.path.join(working_directory, directory))
     
+    # This line checks if the target directory starts with the string of the absolute working directory, which by definition prevents directory traversal attacks.
     if not target_dir.startswith(abs_working_dir):
         return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
 
+    # This line checks if the target directory is a valid directory.
     if not os.path.isdir(target_dir):
-        print(f'Error: "{directory}" is not a directory')
-        return exit(1)
+        return f'Error: "{directory}" is not a directory'
     
-    if not directory in working_directory:
-        print(f'Error: Cannot list "{directory}" as it is outside the permitted working directory')
-        return exit(1)
 
  
     try:    
