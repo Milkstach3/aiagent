@@ -1,5 +1,34 @@
 import os
 import sys
+from google import genai
+from google.genai import types
+from main import system_prompt
+
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory to list files from, relative to the working directory. If not provided, lists files in the working directory itself.",
+            ),
+        },
+    ),
+)
+
+available_functions = types.Tool(
+    function_declarations=[
+        schema_get_files_info,
+    ]
+)
+
+config=types.GenerateContentConfig(
+    tools=[available_functions], system_instruction=system_prompt
+)
+
+
 
 def get_files_info(working_directory, directory=None):
     # Build and return a string representing the contents of the directory. It should use this format:
