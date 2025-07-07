@@ -3,17 +3,8 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from functions.get_files_info import schema_get_files_info
-
-system_prompt = """
-    You are a helpful AI coding agent.
-
-    When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
-
-    - List files and directories
-
-    All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
-    """
+from VARIABLES import SYSTEM_PROMPT
+from schemas import available_functions
 
 def main():
     verbose = False
@@ -24,10 +15,6 @@ def main():
     if len(sys.argv) <= 1:
         print("Usage: python main.py <prompt>")
         return exit(1)
-    
-    
-    
-    
 
     user_prompt = " ".join(sys.argv[1:])
     load_dotenv()
@@ -44,13 +31,13 @@ def main():
     response = client.models.generate_content(
         model='gemini-2.0-flash-001', 
         contents=messages, 
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        config=types.GenerateContentConfig(tools=[available_functions], system_instruction=SYSTEM_PROMPT),
     )
 
-    function_call_part = response.function_calls if response.function_calls else None
+    # function_call_part = response.function_calls if response.function_calls else None
 
     print(response.text)
-    if function_call_part: print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+    if response.function_calls: print(f"Calling function: {response.function_calls}")
 
     if verbose:
         print("User prompt: " + user_prompt)
